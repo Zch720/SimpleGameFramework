@@ -23,6 +23,13 @@ namespace sgf_core {
         
         Material(const Id & id, const Construct & constructParameter);
 
+        bool getUseTexture() const;
+        Texture2DId getTextureId() const;
+        ShaderId getShaderId() const;
+
+        void setUseTexture(bool useTexture);
+        void setTextureId(const Texture2DId & id);
+
         UniformId registerUniform(const RenderContext & context, const std::string & name, UniformSource sourceType);
 
         void bind(const RenderContext & context) const;

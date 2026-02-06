@@ -1,9 +1,9 @@
 #pragma once
 
 #include <glad/gl.h>
-#include "./mesh_id.h"
-#include "./shader_id.h"
-#include "./texture_2d_id.h"
+#include "../../../../include/sgf/rendering/mesh_id.h"
+#include "../../../../include/sgf/rendering/shader_id.h"
+#include "../../../../include/sgf/rendering/texture_2d_id.h"
 
 namespace sgf_core {
     class RenderContext;

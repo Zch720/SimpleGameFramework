@@ -54,6 +54,11 @@ add_subdirectory(
     ${CMAKE_BINARY_DIR}/bin/sgf_control
     EXCLUDE_FROM_ALL
 )
+add_subdirectory(
+    ${CMAKE_CURRENT_SOURCE_DIR}/sgf_rendering_font
+    ${CMAKE_BINARY_DIR}/bin/sgf_rendering_font
+    EXCLUDE_FROM_ALL
+)
 
 if (SGF_TESTS)
     # create unit test executable
@@ -76,11 +81,15 @@ if (SGF_TESTS)
         sgf_platform
         sgf_audio
         sgf_control
+        sgf_rendering_font
     )
     target_compile_definitions(simple_game_framework_test
         PRIVATE
             SGF_LOG
             SGF_DEBUG_LOG
+            PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+            RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources"
+            TEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/resources"
     )
 
     # googletest

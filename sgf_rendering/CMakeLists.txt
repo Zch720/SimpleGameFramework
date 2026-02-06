@@ -100,6 +100,27 @@ target_link_libraries(sgf_rendering
         glad_sgf_rendering
 )
 
+file(GLOB_RECURSE sgf_rendering_unsafe_sources src/*.cpp unsafe/src/*.cpp)
+
+add_library(sgf_rendering_unsafe ${sgf_rendering_unsafe_sources})
+target_include_directories(sgf_rendering_unsafe
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/unsafe/include
+    PRIVATE
+        ${FETCHCONTENT_BASE_DIR}/stb-src
+)
+target_link_libraries(sgf_rendering_unsafe
+    PUBLIC
+        sgf_utils
+        glm::glm
+        glad_sgf_rendering
+)
+target_compile_definitions(sgf_rendering_unsafe
+    PUBLIC
+        SGF_RENDERING_UNSAFE
+)
+
 if (SGF_RENDERING_TESTS)
     # create unit test executable
     add_executable(sgf_rendering_test
@@ -119,7 +140,7 @@ if (SGF_RENDERING_TESTS)
         glfw
         glad_sgf_rendering
         sgf_utils
-        sgf_rendering
+        sgf_rendering_unsafe
     )
 
     target_compile_definitions(sgf_rendering_test

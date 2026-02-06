@@ -1,18 +1,17 @@
 #include "../../../include/sgf/rendering/texture_2d.h"
 #include <glad/gl.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#include <memory>
-#include <regex>
+#include <sgf/utils/exceptions/invalid_state.h>
+#include "../../../internal_include/sgf/rendering/texture_enum_mapper.h"
 
 namespace sgf_core {
     const std::string Texture2DTag::TypeName = "Texture2D";
     const std::string Texture2D::TypeName = "Texture2D";
 
-    Texture2D::Texture2D(const Id & id, const Construct & constructParameter): path(constructParameter.path) {
+    Texture2D::Texture2D(const Id & id, const Construct & constructParameter):
+        type(constructParameter.type),
+        data(constructParameter.data)
+    {
         this->id = id;
-
-        uint8_t * data = loadData();
 
         glGenTextures(1, &textureHandle);
         glBindTexture(GL_TEXTURE_2D, textureHandle);
@@ -20,10 +19,16 @@ namespace sgf_core {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            TextureEnumMapper::SgfTextureFormatToGL(data.internalFormat),
+            data.width, data.height,
+            0,
+            TextureEnumMapper::SgfTextureFormatToGL(data.dataFormat),
+            TextureEnumMapper::SgfTextureDataTypeToGL(data.dataType),
+            data.data.data());
         glGenerateMipmap(GL_TEXTURE_2D);
-
-        delete[] data;
     }
 
     Texture2D::~Texture2D() {
@@ -32,40 +37,46 @@ namespace sgf_core {
         }
     }
 
-    std::string Texture2D::getPath() const {
-        return path;
-    }
-
     int Texture2D::getWidth() const {
-        return width;
+        return data.width;
     }
 
     int Texture2D::getHeight() const {
-        return height;
+        return data.height;
     }
 
     void Texture2D::bind() const {
         glBindTexture(GL_TEXTURE_2D, textureHandle);
     }
 
-    bool Texture2D::isValidTextureType() const {
-        std::regex textureRegex(".*\\.(bmp|jpg|png)$");
-        return std::regex_search(path.begin(), path.end(), textureRegex);
-    }
-
-    uint8_t * Texture2D::loadData() {
-        if (!isValidTextureType()) {
-            throw std::runtime_error("Unable to load texture file: " + path + ". Invalid texture type.");
+    void Texture2D::updateData(const Texture2DData & data) {
+        if (type == ResourceType::STATIC) {
+            throw InvalidState("Try to update " + getTypeName() + " data with id " + id.toString() + ", but it type is set to static");
         }
 
-        uint8_t * data = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-        if (data == nullptr) {
-            throw std::runtime_error("Unable to load texture file: " + path);
+        glBindTexture(GL_TEXTURE_2D, textureHandle);
+        if (data.width == this->data.width && data.height == this->data.height) {
+            glTexSubImage2D(
+                GL_TEXTURE_2D,
+                0,
+                0, 0,
+                data.width, data.height,
+                TextureEnumMapper::SgfTextureFormatToGL(data.dataFormat),
+                TextureEnumMapper::SgfTextureDataTypeToGL(data.dataType),
+                data.data.data()
+            );
+        } else {
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                TextureEnumMapper::SgfTextureFormatToGL(data.internalFormat),
+                data.width, data.height,
+                0,
+                TextureEnumMapper::SgfTextureFormatToGL(data.dataFormat),
+                TextureEnumMapper::SgfTextureDataTypeToGL(data.dataType),
+                data.data.data());
         }
 
-        uint8_t * result = new uint8_t[width * height * 4];
-        memcpy(result, data, width * height * 4);
-        stbi_image_free(data);
-        return result;
+        this->data = data;
     }
 }

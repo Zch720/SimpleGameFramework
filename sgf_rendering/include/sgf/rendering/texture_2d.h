@@ -1,8 +1,9 @@
 #pragma once
 
 #include <stdint.h>
-#include <string>
 #include <sgf/utils/resource.h>
+#include "./resource_type.h"
+#include "./texture_2d_data.h"
 #include "./texture_2d_id.h"
 
 namespace sgf_core {
@@ -12,30 +13,27 @@ namespace sgf_core {
     public:
         static const std::string TypeName;
         struct Construct {
-            std::string path;
+            ResourceType type = ResourceType::STATIC;
+            const Texture2DData & data;
         };
 
         Texture2D(const Id & id, const Construct & constructParameter);
         ~Texture2D();
 
-        std::string getPath() const;
         int getWidth() const;
         int getHeight() const;
 
         void bind() const;
 
+        void updateData(const Texture2DData & data);
+
     private:
         friend UnsafeGLContext;
 
-        std::string path;
-
-        int width;
-        int height;
-        int channels;
+        ResourceType type;
+        
+        Texture2DData data;
 
         uint32_t textureHandle;
-
-        bool isValidTextureType() const;
-        uint8_t * loadData();
     };
 }

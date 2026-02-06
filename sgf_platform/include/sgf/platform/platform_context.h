@@ -18,7 +18,9 @@ namespace sgf_core {
 
         uint32_t getWindowClearBuffer() const;
         void setWindowClearBuffer(uint32_t buffer);
-    
+
+        uint32_t getPrimaryMonitorDpi() const;
+
     private:
         bool isInitialized;
 

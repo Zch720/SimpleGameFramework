@@ -4,12 +4,13 @@
 #include "./camera.h"
 #include "./material.h"
 #include "./mesh.h"
+#include "./renderable.h"
 #include "./shader.h"
 #include "./texture_2d.h"
 #include "./uniform_provider.h"
 
 #ifdef SGF_RENDERING_UNSAFE
-#include "./unsafe_gl_context.h"
+#include "../../../unsafe/include/sgf/rendering/unsafe_gl_context.h"
 #endif
 
 namespace sgf_core {
@@ -21,6 +22,7 @@ namespace sgf_core {
         Manager<Texture2D> Texture2DManager;
         Manager<Mesh> MeshManager;
         Manager<Material> MaterialManager;
+        Manager<Renderable> RenderableManager;
 
         void initialize();
         void destroyAllResources();

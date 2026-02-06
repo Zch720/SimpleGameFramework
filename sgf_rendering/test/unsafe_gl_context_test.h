@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "./utils.h"
+#include "../include/sgf/rendering/image_loader.h"
 #include "../include/sgf/rendering/render_context.h"
 
 using namespace sgf_core;
@@ -42,7 +43,7 @@ TEST(UnsafeGLContextSuite, Breath) {
         .vertexLayout = vertexLayout
     });
     Texture2DId textureId = context.Texture2DManager.create({
-        .path = TEST_RESOURCES_DIR"/image.png"
+        .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.png")
     });
 
     ASSERT_NO_THROW(context.unsafeExecute([&](const UnsafeGLContext & glContext) {

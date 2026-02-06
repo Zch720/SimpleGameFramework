@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "./key.h"
 
+// TODO: Move to internal
 namespace sgf_core {
     class KeyMapper {
     public:

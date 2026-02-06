@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "./test_env.h"
 #include "./utils.h"
+#include "../include/sgf/rendering/image_loader.h"
 #include "../include/sgf/rendering/render_context.h"
 #include "../include/sgf/rendering/renderable.h"
 
@@ -71,7 +72,7 @@ protected:
 TEST_F(ImageSuite, DrawPngImage) {
     if (skipHandTest) GTEST_SKIP();
 
-    Texture2DId textureId = context.Texture2DManager.create({ .path = TEST_RESOURCES_DIR"/image.png" });
+    Texture2DId textureId = context.Texture2DManager.create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.png") });
     MaterialId materialId = context.MaterialManager.create({ .useTexture = true, .shaderId = shaderId, .textureId = textureId });
     context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
     context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
@@ -91,7 +92,7 @@ TEST_F(ImageSuite, DrawPngImage) {
 TEST_F(ImageSuite, DrawTransparentPngImage) {
     if (skipHandTest) GTEST_SKIP();
 
-    Texture2DId textureId = context.Texture2DManager.create({ .path = TEST_RESOURCES_DIR"/image_transparent.png" });
+    Texture2DId textureId = context.Texture2DManager.create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image_transparent.png") });
     MaterialId materialId = context.MaterialManager.create({ .useTexture = true, .shaderId = shaderId, .textureId = textureId });
     context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
     context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
@@ -111,7 +112,7 @@ TEST_F(ImageSuite, DrawTransparentPngImage) {
 TEST_F(ImageSuite, DrawJpgImage) {
     if (skipHandTest) GTEST_SKIP();
 
-    Texture2DId textureId = context.Texture2DManager.create({ .path = TEST_RESOURCES_DIR"/image.jpg" });
+    Texture2DId textureId = context.Texture2DManager.create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.jpg") });
     MaterialId materialId = context.MaterialManager.create({ .useTexture = true, .shaderId = shaderId, .textureId = textureId });
     context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
     context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
@@ -131,7 +132,7 @@ TEST_F(ImageSuite, DrawJpgImage) {
 TEST_F(ImageSuite, DrawBmpImage) {
     if (skipHandTest) GTEST_SKIP();
 
-    Texture2DId textureId = context.Texture2DManager.create({ .path = TEST_RESOURCES_DIR"/image.bmp" });
+    Texture2DId textureId = context.Texture2DManager.create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.bmp") });
     MaterialId materialId = context.MaterialManager.create({ .useTexture = true, .shaderId = shaderId, .textureId = textureId });
     context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
     context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);

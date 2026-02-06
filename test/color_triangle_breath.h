@@ -1,7 +1,10 @@
+#include "sgf/rendering/material.h"
 #include "sgf/rendering/projection.h"
+#include "sgf/rendering/uniform.h"
 #include <gtest/gtest.h>
 #include <sgf/control/game_control_context.h>
-#include <sgf/rendering/renderable.h>
+#include <sgf/rendering/font/font_render_context.h>
+#include <sgf/rendering/font/text.h>
 
 class ColorTriangleBreathSuite: public testing::Test {
 protected:
@@ -63,6 +66,33 @@ TEST_F(ColorTriangleBreathSuite, Breath) {
         .width = 3, .height = 3,
         .near = 0.1, .far = 1000
     });
+
+    sgf_font::FontRenderContext fontRenderContext(renderContext);
+    sgf_core::MaterialId fontMaterialId = renderContext.MaterialManager.create({
+        .useTexture = true,
+        .shaderId = fontRenderContext.getShaderId(),
+        .textureId = sgf_core::Texture2DId()
+    });
+    fontRenderContext.setMaterial(fontMaterialId);
+    sgf_core::UniformId projectionUniformId = renderContext.MaterialManager.getRef(fontMaterialId).registerUniform(renderContext, "projection", sgf_core::UniformSource::CUSTOM);
+    renderContext.MaterialManager.getRef(fontMaterialId).registerUniform(renderContext, "transform", sgf_core::UniformSource::TRANSFORM_MATRIX);
+    renderContext.MaterialManager.getRef(fontMaterialId).registerUniform(renderContext, "textColor", sgf_core::UniformSource::RENDERABLE_COLOR);
+
+    sgf_core::Projection fontProjection;
+    fontProjection.setProjectionData({
+        .type = sgf_core::Projection::ORTHOGRAPHIC,
+        .width = 800, .height = 800,
+        .near = 0, .far = 1000
+    });
+    renderContext.UniformProvider().setProviderFunc(projectionUniformId, [&fontProjection]() {
+        return fontProjection.getProjectionMatrix();
+    });
+
+    sgf_font::FontId fontId = fontRenderContext.addFont(TEST_RESOURCES_DIR"/jf-openhuninn-2.1.ttf");
+    sgf_font::Text text1(fontRenderContext, fontId, 28, U"This is a colorful triangle");
+    text1.position({ -text1.getWidth() / 2, 320, 0 });
+    sgf_font::Text text2(fontRenderContext, fontId, 20, U"Press ESC to leave");
+    text2.position({ -text2.getWidth() / 2, 310 - text2.getHeight(), 0 });
     
     sgf_core::GameControlContext gameContext(renderContext, platformContext);
 
@@ -86,27 +116,33 @@ TEST_F(ColorTriangleBreathSuite, Breath) {
     renderContext.MaterialManager.getRef(materialId).registerUniform(renderContext, "view", sgf_core::UniformSource::CAMERA_VIEW);
     renderContext.MaterialManager.getRef(materialId).registerUniform(renderContext, "model", sgf_core::UniformSource::TRANSFORM_MATRIX);
 
-    sgf_core::Manager<sgf_core::Renderable> renderableManager;
-    sgf_core::RenderableId renderableId = renderableManager.create({
+    sgf_core::RenderableId renderableId = renderContext.RenderableManager.create({
         .meshId = meshId,
         .materialId = materialId,
     });
 
-    gameContext.GameLoop().addRenderFunction([&renderableManager, &renderableId](const sgf_core::RenderContext & context) {
-        renderableManager.getRef(renderableId).render(context);
+    gameContext.GameLoop().addRenderFunction([&renderContext, &renderableId](const sgf_core::RenderContext & context) {
+        renderContext.RenderableManager.getRef(renderableId).render(context);
+    });
+    gameContext.GameLoop().addRenderFunction([&fontRenderContext, &text1, &text2](const auto &) {
+        text1.render(fontRenderContext);
+        text2.render(fontRenderContext);
     });
 
     gameContext.GameLoop().addUpdateFunction([&renderContext]() {
         renderContext.Camera().update();
     });
-
-    gameContext.GameLoop().addUpdateFunction([&renderableManager, &renderableId, &gameContext]() {
-        renderableManager.getRef(renderableId).rotateX(30 * gameContext.GameLoop().Time().getDeltaTime());
-        renderableManager.getRef(renderableId).rotateY(30 * gameContext.GameLoop().Time().getDeltaTime());
-        renderableManager.getRef(renderableId).rotateZ(30 * gameContext.GameLoop().Time().getDeltaTime());
-        renderableManager.getRef(renderableId).update();
+    gameContext.GameLoop().addUpdateFunction([&renderContext, &renderableId, &gameContext]() {
+        renderContext.RenderableManager.getRef(renderableId).rotateX(30 * gameContext.GameLoop().Time().getDeltaTime());
+        renderContext.RenderableManager.getRef(renderableId).rotateY(30 * gameContext.GameLoop().Time().getDeltaTime());
+        renderContext.RenderableManager.getRef(renderableId).rotateZ(30 * gameContext.GameLoop().Time().getDeltaTime());
+        renderContext.RenderableManager.getRef(renderableId).update();
     });
-
+    gameContext.GameLoop().addUpdateFunction([&fontRenderContext, &text1, &text2]() {
+        fontRenderContext.updateFontsAtlasTexture();
+        text1.update(fontRenderContext);
+        text2.update(fontRenderContext);
+    });
     gameContext.GameLoop().addUpdateFunction([&platformContext, &gameContext]() {
         if (platformContext.Runtime().Input().Keyboard().isKeyDown(sgf_core::Key::ESCAPE)) {
             gameContext.GameLoop().stop();
@@ -213,6 +249,33 @@ TEST_F(ColorCubeBreathSuite, Breath) {
         .near = 0.1, .far = 1000,
         .fieldOfView = 45
     });
+
+    sgf_font::FontRenderContext fontRenderContext(renderContext);
+    sgf_core::MaterialId fontMaterialId = renderContext.MaterialManager.create({
+        .useTexture = true,
+        .shaderId = fontRenderContext.getShaderId(),
+        .textureId = sgf_core::Texture2DId()
+    });
+    fontRenderContext.setMaterial(fontMaterialId);
+    sgf_core::UniformId projectionUniformId = renderContext.MaterialManager.getRef(fontMaterialId).registerUniform(renderContext, "projection", sgf_core::UniformSource::CUSTOM);
+    renderContext.MaterialManager.getRef(fontMaterialId).registerUniform(renderContext, "transform", sgf_core::UniformSource::TRANSFORM_MATRIX);
+    renderContext.MaterialManager.getRef(fontMaterialId).registerUniform(renderContext, "textColor", sgf_core::UniformSource::RENDERABLE_COLOR);
+
+    sgf_core::Projection fontProjection;
+    fontProjection.setProjectionData({
+        .type = sgf_core::Projection::ORTHOGRAPHIC,
+        .width = 800, .height = 800,
+        .near = 0, .far = 1000
+    });
+    renderContext.UniformProvider().setProviderFunc(projectionUniformId, [&fontProjection]() {
+        return fontProjection.getProjectionMatrix();
+    });
+
+    sgf_font::FontId fontId = fontRenderContext.addFont(TEST_RESOURCES_DIR"/jf-openhuninn-2.1.ttf");
+    sgf_font::Text text1(fontRenderContext, fontId, 28, U"This is a three color cube");
+    text1.position({ -text1.getWidth() / 2, 320, 0 });
+    sgf_font::Text text2(fontRenderContext, fontId, 20, U"Press ESC to leave");
+    text2.position({ -text2.getWidth() / 2, 310 - text2.getHeight(), 0 });
     
     sgf_core::GameControlContext gameContext(renderContext, platformContext);
 
@@ -236,27 +299,33 @@ TEST_F(ColorCubeBreathSuite, Breath) {
     renderContext.MaterialManager.getRef(materialId).registerUniform(renderContext, "view", sgf_core::UniformSource::CAMERA_VIEW);
     renderContext.MaterialManager.getRef(materialId).registerUniform(renderContext, "model", sgf_core::UniformSource::TRANSFORM_MATRIX);
 
-    sgf_core::Manager<sgf_core::Renderable> renderableManager;
-    sgf_core::RenderableId renderableId = renderableManager.create({
+    sgf_core::RenderableId renderableId = renderContext.RenderableManager.create({
         .meshId = meshId,
         .materialId = materialId,
     });
 
-    gameContext.GameLoop().addRenderFunction([&renderableManager, &renderableId](const sgf_core::RenderContext & context) {
-        renderableManager.getRef(renderableId).render(context);
+    gameContext.GameLoop().addRenderFunction([&renderContext, &renderableId](const sgf_core::RenderContext & context) {
+        renderContext.RenderableManager.getRef(renderableId).render(context);
+    });
+    gameContext.GameLoop().addRenderFunction([&fontRenderContext, &text1, &text2](const auto &) {
+        text1.render(fontRenderContext);
+        text2.render(fontRenderContext);
     });
 
     gameContext.GameLoop().addUpdateFunction([&renderContext]() {
         renderContext.Camera().update();
     });
-
-    gameContext.GameLoop().addUpdateFunction([&renderableManager, &renderableId, &gameContext]() {
-        renderableManager.getRef(renderableId).rotateX(30 * gameContext.GameLoop().Time().getDeltaTime());
-        renderableManager.getRef(renderableId).rotateY(30 * gameContext.GameLoop().Time().getDeltaTime());
-        renderableManager.getRef(renderableId).rotateZ(30 * gameContext.GameLoop().Time().getDeltaTime());
-        renderableManager.getRef(renderableId).update();
+    gameContext.GameLoop().addUpdateFunction([&renderContext, &renderableId, &gameContext]() {
+        renderContext.RenderableManager.getRef(renderableId).rotateX(30 * gameContext.GameLoop().Time().getDeltaTime());
+        renderContext.RenderableManager.getRef(renderableId).rotateY(30 * gameContext.GameLoop().Time().getDeltaTime());
+        renderContext.RenderableManager.getRef(renderableId).rotateZ(30 * gameContext.GameLoop().Time().getDeltaTime());
+        renderContext.RenderableManager.getRef(renderableId).update();
     });
-
+    gameContext.GameLoop().addUpdateFunction([&fontRenderContext, &text1, &text2]() {
+        fontRenderContext.updateFontsAtlasTexture();
+        text1.update(fontRenderContext);
+        text2.update(fontRenderContext);
+    });
     gameContext.GameLoop().addUpdateFunction([&platformContext, &gameContext]() {
         if (platformContext.Runtime().Input().Keyboard().isKeyDown(sgf_core::Key::ESCAPE)) {
             gameContext.GameLoop().stop();

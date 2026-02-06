@@ -1,6 +1,7 @@
 #include "../../../include/sgf/platform/platform_context.h"
+#include <GLFW/glfw3.h>
+#include <sgf/utils/exceptions/invalid_state.h>
 #include "../../../include/sgf/platform/gl_control.h"
-#include "sgf/utils/exceptions/invalid_state.h"
 
 namespace sgf_core {
     PlatformContext::PlatformContext(): defaultWindowId(), isInitialized(false), runtime(*this) {
@@ -50,5 +51,28 @@ namespace sgf_core {
 
     void PlatformContext::setWindowClearBuffer(uint32_t buffer) {
         windowClearBuffer = buffer;
+    }
+
+    uint32_t PlatformContext::getPrimaryMonitorDpi() const {
+        GLFWmonitor * monitor = glfwGetPrimaryMonitor();
+
+        if (monitor != nullptr) {
+            int width_px, height_px;
+            const GLFWvidmode * mode = glfwGetVideoMode(monitor);
+            if (mode != nullptr) {
+                width_px = mode->width,
+                height_px = mode->height;
+
+                int width_mm, height_mm;
+                glfwGetMonitorPhysicalSize(monitor, &width_mm, &height_mm);
+
+                if (width_mm > 0 && height_mm > 0) {
+                    double width_inches = width_mm / 25.4;
+                    return width_px / width_inches;
+                }
+            }
+        }
+
+        return 96;
     }
 }

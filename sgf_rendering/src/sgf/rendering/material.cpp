@@ -14,12 +14,33 @@ namespace sgf_core {
         textureId(constructParameter.textureId) {
     }
 
+    bool Material::getUseTexture() const {
+        return useTexture;
+    }
+
+    Texture2DId Material::getTextureId() const {
+        return textureId;
+    }
+
+    ShaderId Material::getShaderId() const {
+        return shaderId;
+    }
+
+    void Material::setUseTexture(bool useTexture) {
+        this->useTexture = useTexture;
+    }
+
+    void Material::setTextureId(const Texture2DId & id) {
+        textureId = id;
+    }
+
     UniformId Material::registerUniform(const RenderContext & context, const std::string & name, UniformSource sourceType) {
         if (!context.ShaderManager.getRef(shaderId).hasUniformVariable(name)) {
             SGF_LOG_ERROR("Try to register not exist uniform, register failed.");
             throw std::runtime_error("Uniform variable \"" + name + "\" not exist");
         }
-        
+        // TODO: Cannot register same uniform twice
+
         UniformId uniformId(id, uniformIds.size() + 1);
         uniformIds[name] = uniformId;
         uniformSourceTypes[uniformId] = sourceType;

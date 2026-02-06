@@ -1,5 +1,5 @@
 #include "../../../include/sgf/rendering/unsafe_gl_context.h"
-#include "../../../include/sgf/rendering/render_context.h"
+#include "../../../../include/sgf/rendering/render_context.h"
 
 namespace sgf_core {
     UnsafeGLContext::UnsafeGLContext(RenderContext & renderContext): renderContext(renderContext) {
