@@ -14,10 +14,51 @@ namespace sgf_core {
     }
 
     void RenderContext::destroyAllResources() {
-        ShaderManager.destroyAll();
-        Texture2DManager.destroyAll();
-        MeshManager.destroyAll();
-        MaterialManager.destroyAll();
+        shaderManager.destroyAll();
+        texture2DManager.destroyAll();
+        meshManager.destroyAll();
+        materialManager.destroyAll();
+        renderableManager.destroyAll();
+    }
+
+    sgf_core::ShaderManager & RenderContext::ShaderManager() {
+        return shaderManager;
+    }
+
+    const sgf_core::ShaderManager & RenderContext::ShaderManager() const {
+        return shaderManager;
+    }
+
+    sgf_core::Texture2DManager & RenderContext::Texture2DManager() {
+        return texture2DManager;
+    }
+
+    const sgf_core::Texture2DManager & RenderContext::Texture2DManager() const {
+        return texture2DManager;
+    }
+
+    sgf_core::MeshManager & RenderContext::MeshManager() {
+        return meshManager;
+    }
+
+    const sgf_core::MeshManager & RenderContext::MeshManager() const {
+        return meshManager;
+    }
+
+    sgf_core::MaterialManager & RenderContext::MaterialManager() {
+        return materialManager;
+    }
+
+    const sgf_core::MaterialManager & RenderContext::MaterialManager() const {
+        return materialManager;
+    }
+
+    sgf_core::RenderableManager & RenderContext::RenderableManager() {
+        return renderableManager;
+    }
+
+    const sgf_core::RenderableManager & RenderContext::RenderableManager() const {
+        return renderableManager;
     }
 
     uint32_t RenderContext::getClearFrameBufferBits() const {

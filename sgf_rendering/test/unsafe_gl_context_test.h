@@ -18,7 +18,7 @@ TEST(UnsafeGLContextSuite, Breath) {
     sgf_test::createOpenGLContext();
 
     RenderContext context;
-    ShaderId shaderId = context.ShaderManager.create({
+    ShaderId shaderId = context.ShaderManager().create({
         .vertexShaderSource = R"(
             #version 330 core
             layout (location = 0) in vec3 aPos;
@@ -35,14 +35,14 @@ TEST(UnsafeGLContextSuite, Breath) {
             }
         )"
     });
-    MeshId meshId = context.MeshManager.create({
+    MeshId meshId = context.MeshManager().create({
         .vertices = vertices.data(),
         .verticesCount = 3,
         .indices = indices.data(),
         .indicesCount = 3,
         .vertexLayout = vertexLayout
     });
-    Texture2DId textureId = context.Texture2DManager.create({
+    Texture2DId textureId = context.Texture2DManager().create({
         .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.png")
     });
 

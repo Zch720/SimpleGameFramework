@@ -2,11 +2,11 @@
 
 #include <sgf/utils/manager.h>
 #include "./camera.h"
-#include "./material.h"
-#include "./mesh.h"
-#include "./renderable.h"
-#include "./shader.h"
-#include "./texture_2d.h"
+#include "./material_manager.h"
+#include "./mesh_manager.h"
+#include "./renderable_manager.h"
+#include "./shader_manager.h"
+#include "./texture_2d_manager.h"
 #include "./uniform_provider.h"
 
 #ifdef SGF_RENDERING_UNSAFE
@@ -18,11 +18,20 @@ namespace sgf_core {
     public:
         RenderContext();
 
-        Manager<Shader> ShaderManager;
-        Manager<Texture2D> Texture2DManager;
-        Manager<Mesh> MeshManager;
-        Manager<Material> MaterialManager;
-        Manager<Renderable> RenderableManager;
+        sgf_core::ShaderManager & ShaderManager();
+        const sgf_core::ShaderManager & ShaderManager() const;
+
+        sgf_core::Texture2DManager & Texture2DManager();
+        const sgf_core::Texture2DManager & Texture2DManager() const;
+
+        sgf_core::MeshManager & MeshManager();
+        const sgf_core::MeshManager & MeshManager() const;
+
+        sgf_core::MaterialManager & MaterialManager();
+        const sgf_core::MaterialManager & MaterialManager() const;
+
+        sgf_core::RenderableManager & RenderableManager();
+        const sgf_core::RenderableManager & RenderableManager() const;
 
         void initialize();
         void destroyAllResources();
@@ -52,5 +61,11 @@ namespace sgf_core {
 
         sgf_core::UniformProvider uniformProvider;
         sgf_core::Camera camera;
+
+        sgf_core::ShaderManager shaderManager;
+        sgf_core::Texture2DManager texture2DManager;
+        sgf_core::MeshManager meshManager;
+        sgf_core::MaterialManager materialManager;
+        sgf_core::RenderableManager renderableManager;
     };
 }

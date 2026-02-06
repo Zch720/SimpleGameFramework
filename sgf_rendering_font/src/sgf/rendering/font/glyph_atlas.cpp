@@ -22,7 +22,7 @@ namespace sgf_font {
         };
         textureData.data.resize(textureData.width * textureData.height, 0);
 
-        textureId = context.getContext().Texture2DManager.create({
+        textureId = context.getContext().Texture2DManager().create({
             .type = sgf_core::ResourceType::DYNAMIC,
             .data = textureData
         });
@@ -104,7 +104,7 @@ namespace sgf_font {
 
     void GlyphAtlas::updateAtlasTexture(FontRenderContext & context) {
         if (atlasDirty) {
-            context.getContext().Texture2DManager.getRef(textureId).updateData(textureData);
+            context.getContext().Texture2DManager().getRef(textureId).updateData(textureData);
             atlasDirty = false;
         }
     }

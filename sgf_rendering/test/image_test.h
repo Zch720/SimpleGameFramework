@@ -13,14 +13,17 @@ protected:
         sgf_test::createOpenGLContext();
 
         context.initialize();
-        shaderId = context.ShaderManager.create({
+        shaderId = context.ShaderManager().create({
             .vertexShaderSource = vertexShaderSource,
             .fragmentShaderSource = fragmentShaderSource
         });
         imageVertexLayout = VertexLayout();
         imageVertexLayout.addAttribute({ .index = 0, .size = 3, .type = VertexLayout::VertexType::FLOAT, .normalized = false, .offset = 0 });
         imageVertexLayout.addAttribute({ .index = 1, .size = 2, .type = VertexLayout::VertexType::FLOAT, .normalized = false, .offset = sizeof(float) * 3 });
-        imageMeshId = context.MeshManager.create({ .vertices = imageVertices.data(), .verticesCount = 4, .indices = triangleIndices.data(), .indicesCount = 6, .vertexLayout = imageVertexLayout });
+        imageMeshId = context.MeshManager().create({ .vertices = imageVertices.data(), .verticesCount = 4, .indices = triangleIndices.data(), .indicesCount = 6, .vertexLayout = imageVertexLayout });
+    materialId = context.MaterialManager().create({ .useTexture = true, .shaderId = shaderId });
+    context.MaterialManager().getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
+    context.MaterialManager().getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
     }
 
     void TearDown() override {
@@ -33,6 +36,7 @@ protected:
     ShaderId shaderId;
     VertexLayout imageVertexLayout;
     MeshId imageMeshId;
+    MaterialId materialId;
     std::vector<float> imageVertices {
         -0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
         0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
@@ -72,79 +76,71 @@ protected:
 TEST_F(ImageSuite, DrawPngImage) {
     if (skipHandTest) GTEST_SKIP();
 
-    Texture2DId textureId = context.Texture2DManager.create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.png") });
-    MaterialId materialId = context.MaterialManager.create({ .useTexture = true, .shaderId = shaderId, .textureId = textureId });
-    context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
-    context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
+    Texture2DId textureId = context.Texture2DManager().create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.png") });
+    context.MaterialManager().getRef(materialId).setTextureId(textureId);
 
-    Renderable image(RenderableId(), { .meshId = imageMeshId, .materialId = materialId });
+    RenderableId imageId = context.RenderableManager().create({ .meshId = imageMeshId, .materialId = materialId });
 
     PRINTF("There should be a smile image in the window.\n");
     PRINTF("If success press 's', otherwise press 'f' ");
     fflush(stdout);
 
     WINDOW_LOOP("Image show wrong", {
-        image.update();
-        image.render(context);
+        context.RenderableManager().getRef(imageId).update();
+        context.RenderableManager().getRef(imageId).render(context);
     });
 }
 
 TEST_F(ImageSuite, DrawTransparentPngImage) {
     if (skipHandTest) GTEST_SKIP();
 
-    Texture2DId textureId = context.Texture2DManager.create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image_transparent.png") });
-    MaterialId materialId = context.MaterialManager.create({ .useTexture = true, .shaderId = shaderId, .textureId = textureId });
-    context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
-    context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
+    Texture2DId textureId = context.Texture2DManager().create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image_transparent.png") });
+    context.MaterialManager().getRef(materialId).setTextureId(textureId);
 
-    Renderable image(RenderableId(), { .meshId = imageMeshId, .materialId = materialId });
+    RenderableId imageId = context.RenderableManager().create({ .meshId = imageMeshId, .materialId = materialId });
 
     PRINTF("There should be a smile image with no background in the window.\n");
     PRINTF("If success press 's', otherwise press 'f' ");
     fflush(stdout);
 
     WINDOW_LOOP("Image show wrong", {
-        image.update();
-        image.render(context);
+        context.RenderableManager().getRef(imageId).update();
+        context.RenderableManager().getRef(imageId).render(context);
     });
 }
 
 TEST_F(ImageSuite, DrawJpgImage) {
     if (skipHandTest) GTEST_SKIP();
 
-    Texture2DId textureId = context.Texture2DManager.create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.jpg") });
-    MaterialId materialId = context.MaterialManager.create({ .useTexture = true, .shaderId = shaderId, .textureId = textureId });
-    context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
-    context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
+    Texture2DId textureId = context.Texture2DManager().create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.jpg") });
+    context.MaterialManager().getRef(materialId).setTextureId(textureId);
 
-    Renderable image(RenderableId(), { .meshId = imageMeshId, .materialId = materialId });
+    RenderableId imageId = context.RenderableManager().create({ .meshId = imageMeshId, .materialId = materialId });
 
     PRINTF("There should be a smile image in the window.\n");
     PRINTF("If success press 's', otherwise press 'f' ");
     fflush(stdout);
 
     WINDOW_LOOP("Image show wrong", {
-        image.update();
-        image.render(context);
+        context.RenderableManager().getRef(imageId).update();
+        context.RenderableManager().getRef(imageId).render(context);
     });
 }
 
 TEST_F(ImageSuite, DrawBmpImage) {
     if (skipHandTest) GTEST_SKIP();
 
-    Texture2DId textureId = context.Texture2DManager.create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.bmp") });
-    MaterialId materialId = context.MaterialManager.create({ .useTexture = true, .shaderId = shaderId, .textureId = textureId });
-    context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
-    context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
+    Texture2DId textureId = context.Texture2DManager().create({ .data = ImageLoader::loadImage(TEST_RESOURCES_DIR"/image.bmp") });
+    context.MaterialManager().getRef(materialId).setTextureId(textureId);
 
-    Renderable image(RenderableId(), { .meshId = imageMeshId, .materialId = materialId });
+    RenderableId imageId = context.RenderableManager().create({ .meshId = imageMeshId, .materialId = materialId });
 
     PRINTF("There should be a smile image in the window.\n");
     PRINTF("If success press 's', otherwise press 'f' ");
     fflush(stdout);
 
     WINDOW_LOOP("Image show wrong", {
-        image.update();
-        image.render(context);
+        context.RenderableManager().getRef(imageId).update();
+        context.RenderableManager().getRef(imageId).render(context);
     });
 }

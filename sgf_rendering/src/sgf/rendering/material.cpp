@@ -35,7 +35,7 @@ namespace sgf_core {
     }
 
     UniformId Material::registerUniform(const RenderContext & context, const std::string & name, UniformSource sourceType) {
-        if (!context.ShaderManager.getRef(shaderId).hasUniformVariable(name)) {
+        if (!context.ShaderManager().getRef(shaderId).hasUniformVariable(name)) {
             SGF_LOG_ERROR("Try to register not exist uniform, register failed.");
             throw std::runtime_error("Uniform variable \"" + name + "\" not exist");
         }
@@ -48,14 +48,14 @@ namespace sgf_core {
     }
 
     void Material::bind(const RenderContext & context) const {
-        context.ShaderManager.getRef(shaderId).use();
+        context.ShaderManager().getRef(shaderId).use();
         if (useTexture) {
-            context.Texture2DManager.getRef(textureId).bind();
+            context.Texture2DManager().getRef(textureId).bind();
         }
     }
 
     void Material::applyPerObject(const RenderContext & context, const Renderable & renderable) const {
-        Shader & shader = context.ShaderManager.getRef(shaderId);
+        Shader & shader = context.ShaderManager().getRef(shaderId);
 
         for (const auto & [name, uniformId]: uniformIds) {
             UniformSource sourceType = uniformSourceTypes.at(uniformId);

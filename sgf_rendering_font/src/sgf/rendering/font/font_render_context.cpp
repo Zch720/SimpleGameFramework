@@ -15,22 +15,22 @@ namespace sgf_font {
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }); // TODO: move to sgf_rendering for pre object
 
-        shaderId = context.ShaderManager.create({
+        shaderId = context.ShaderManager().create({
             .vertexShaderSource = sgf_core::FileIO::read(RESOURCES_DIR"/text_vertex_shader.glsl"),
             .fragmentShaderSource = sgf_core::FileIO::read(RESOURCES_DIR"/text_fragment_shader.glsl")
         });
-        materialId = context.MaterialManager.create({
+        materialId = context.MaterialManager().create({
             .useTexture = true,
             .shaderId = shaderId,
             .textureId = sgf_core::Texture2DId()
         });
-        context.MaterialManager.getRef(materialId)
+        context.MaterialManager().getRef(materialId)
             .registerUniform(context, "projection", sgf_core::UniformSource::CAMERA_PROJECTION);
-        context.MaterialManager.getRef(materialId)
+        context.MaterialManager().getRef(materialId)
             .registerUniform(context, "view", sgf_core::UniformSource::CAMERA_VIEW);
-        context.MaterialManager.getRef(materialId)
+        context.MaterialManager().getRef(materialId)
             .registerUniform(context, "transform", sgf_core::UniformSource::TRANSFORM_MATRIX);
-        context.MaterialManager.getRef(materialId)
+        context.MaterialManager().getRef(materialId)
             .registerUniform(context, "textColor", sgf_core::UniformSource::RENDERABLE_COLOR);
     }
 

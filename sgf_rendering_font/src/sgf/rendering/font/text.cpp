@@ -15,7 +15,7 @@ namespace sgf_font {
         layout.addAttribute({ .index = 0, .size = 2, .type = sgf_core::VertexLayout::VertexType::FLOAT, .normalized = false, .offset = 0 });
         layout.addAttribute({ .index = 1, .size = 2, .type = sgf_core::VertexLayout::VertexType::FLOAT, .normalized = false, .offset = layout.getStride() });
 
-        meshId = context.getContext().MeshManager.create({
+        meshId = context.getContext().MeshManager().create({
             .type = sgf_core::ResourceType::DYNAMIC,
             .vertices = nullptr,
             .verticesCount = 0,
@@ -23,7 +23,7 @@ namespace sgf_font {
             .indicesCount = 0,
             .vertexLayout = layout
         });
-        renderableId = context.getContext().RenderableManager.create({
+        renderableId = context.getContext().RenderableManager().create({
             .meshId = meshId,
             .materialId = context.getMaterialId()
         });
@@ -67,7 +67,7 @@ namespace sgf_font {
     }
 
     void Text::update(FontRenderContext & context) {
-        sgf_core::Renderable & renderable = context.getContext().RenderableManager.getRef(renderableId);
+        sgf_core::Renderable & renderable = context.getContext().RenderableManager().getRef(renderableId);
         if (positionDirty) {
             renderable.position(positionValue);
             positionDirty = false;
@@ -81,10 +81,10 @@ namespace sgf_font {
     }
 
     void Text::render(const FontRenderContext & context) const {
-        context.getContext().MaterialManager
+        context.getContext().MaterialManager()
             .getRef(context.getMaterialId())
             .setTextureId(context.getFont(fontId).getTextureId(size));
-        context.getContext().RenderableManager
+        context.getContext().RenderableManager()
             .getRef(renderableId)
             .render(context.getContext());
     }
@@ -145,10 +145,10 @@ namespace sgf_font {
             width += glyph.getAdvance();
         }
 
-        context.getContext().MeshManager
+        context.getContext().MeshManager()
             .getRef(meshId)
             .updateVertices(vertices.data(), vertices.size() / 4);
-        context.getContext().MeshManager
+        context.getContext().MeshManager()
             .getRef(meshId)
             .updateIndices(indices.data(), indices.size());
     }

@@ -42,13 +42,13 @@ namespace sgf_core {
     }
 
     void Renderable::render(const RenderContext & context) const {
-        if (!context.MeshManager.isExist(meshId)) return;
+        if (!context.MeshManager().isExist(meshId)) return;
 
-        Material & material = context.MaterialManager.getRef(materialId);
+        Material & material = context.MaterialManager().getRef(materialId);
         material.bind(context);
         material.applyPerObject(context, *this);
 
-        Mesh & mesh = context.MeshManager.getRef(meshId);
+        Mesh & mesh = context.MeshManager().getRef(meshId);
         mesh.bind();
         glDrawElements(GL_TRIANGLES, mesh.getIndicesCount(), GL_UNSIGNED_INT, nullptr);
         mesh.unbind();

@@ -13,16 +13,16 @@ protected:
         sgf_test::createOpenGLContext();
 
         context.initialize();
-        shaderId = context.ShaderManager.create({
+        shaderId = context.ShaderManager().create({
             .vertexShaderSource = vertexShaderSource,
             .fragmentShaderSource = fragmentShaderSource
         });
-        materialId = context.MaterialManager.create({ .useTexture = false, .shaderId = shaderId });
-        context.MaterialManager.getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
-        context.MaterialManager.getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
+        materialId = context.MaterialManager().create({ .useTexture = false, .shaderId = shaderId });
+        context.MaterialManager().getRef(materialId).registerUniform(context, "model", UniformSource::TRANSFORM_MATRIX);
+        context.MaterialManager().getRef(materialId).registerUniform(context, "color", UniformSource::RENDERABLE_COLOR);
         triangleVertexLayout = VertexLayout();
         triangleVertexLayout.addAttribute({ .index = 0, .size = 3, .type = VertexLayout::VertexType::FLOAT, .normalized = false, .offset = 0 });
-        triangleMeshId = context.MeshManager.create({ .vertices = triangleVertices.data(), .verticesCount = 3, .indices = triangleIndices.data(), .indicesCount = 3, .vertexLayout = triangleVertexLayout });
+        triangleMeshId = context.MeshManager().create({ .vertices = triangleVertices.data(), .verticesCount = 3, .indices = triangleIndices.data(), .indicesCount = 3, .vertexLayout = triangleVertexLayout });
     }
 
     virtual void TearDown() {
@@ -77,17 +77,17 @@ TEST_F(RenderableSuite, DrawTriangle) {
     std::vector<uint32_t> indices { 0, 1, 2 };
     VertexLayout vertexLayout;
     vertexLayout.addAttribute({ .index = 0, .size = 3, .type = VertexLayout::VertexType::FLOAT, .normalized = false, .offset = 0 });
-    MeshId meshId = context.MeshManager.create({ .vertices = (void *)vertices.data(), .verticesCount = 3, .indices = indices.data(), .indicesCount = 3, .vertexLayout = vertexLayout });
+    MeshId meshId = context.MeshManager().create({ .vertices = (void *)vertices.data(), .verticesCount = 3, .indices = indices.data(), .indicesCount = 3, .vertexLayout = vertexLayout });
 
-    Renderable triangle(RenderableId(), { .meshId = meshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = meshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("If success press 's', otherwise press 'f' ");
     fflush(stdout);
     
     WINDOW_LOOP("Window display wrong", {
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
@@ -103,17 +103,17 @@ TEST_F(RenderableSuite, DrawRectangle) {
     std::vector<uint32_t> indices { 0, 1, 2, 0, 2, 3 };
     VertexLayout vertexLayout;
     vertexLayout.addAttribute({ .index = 0, .size = 3, .type = VertexLayout::VertexType::FLOAT, .normalized = false, .offset = 0 });
-    MeshId meshId = context.MeshManager.create({ .vertices = (void *)vertices.data(), .verticesCount = 4, .indices = indices.data(), .indicesCount = 6, .vertexLayout = vertexLayout });
+    MeshId meshId = context.MeshManager().create({ .vertices = (void *)vertices.data(), .verticesCount = 4, .indices = indices.data(), .indicesCount = 6, .vertexLayout = vertexLayout });
 
-    Renderable rectangle(RenderableId(), { .meshId = meshId, .materialId = materialId });
+    RenderableId rectangleId = context.RenderableManager().create({ .meshId = meshId, .materialId = materialId });
 
     PRINTF("There should be a white Rectangle on the screen\n");
     PRINTF("If success press 's', otherwise press 'f' ");
     fflush(stdout);
     
     WINDOW_LOOP("Window display wrong", {
-        rectangle.update();
-        rectangle.render(context);
+        context.RenderableManager().getRef(rectangleId).update();
+        context.RenderableManager().getRef(rectangleId).render(context);
     });
 }
 
@@ -130,33 +130,33 @@ TEST_F(RenderableSuite, DrawPentagon) {
     std::vector<uint32_t> indices { 0, 1, 2, 0, 2, 3, 0, 3, 4 };
     VertexLayout vertexLayout;
     vertexLayout.addAttribute({ .index = 0, .size = 3, .type = VertexLayout::VertexType::FLOAT, .normalized = false, .offset = 0 });
-    MeshId meshId = context.MeshManager.create({ .vertices = (void *)vertices.data(), .verticesCount = 5, .indices = indices.data(), .indicesCount = 9, .vertexLayout = vertexLayout });
+    MeshId meshId = context.MeshManager().create({ .vertices = (void *)vertices.data(), .verticesCount = 5, .indices = indices.data(), .indicesCount = 9, .vertexLayout = vertexLayout });
 
-    Renderable pentagon(RenderableId(), { .meshId = meshId, .materialId = materialId });
+    RenderableId pentagonId = context.RenderableManager().create({ .meshId = meshId, .materialId = materialId });
 
     PRINTF("There should be a white Rectangle on the screen\n");
     PRINTF("If success press 's', otherwise press 'f' ");
     fflush(stdout);
 
     WINDOW_LOOP("Window display wrong", {
-        pentagon.update();
-        pentagon.render(context);
+        context.RenderableManager().getRef(pentagonId).update();
+        context.RenderableManager().getRef(pentagonId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, SetColor) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
-    triangle.setColor(1.0f, 0.0f, 0.0f, 1.0f);
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
+    context.RenderableManager().getRef(triangleId).setColor(1.0f, 0.0f, 0.0f, 1.0f);
 
     PRINTF("There should be a red triangle on the screen\n");
     PRINTF("If success press 's', otherwise press 'f' ");
     fflush(stdout);
 
     WINDOW_LOOP("Window display wrong", {
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
@@ -169,8 +169,8 @@ TEST_F(RenderableSuite, ChangeColorAtRuntime) {
         {0.0f, 0.0f, 1.0f}
     };
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
-    triangle.setColor(1.0f, 0.0f, 0.0f, 1.0f);
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
+    context.RenderableManager().getRef(triangleId).setColor(1.0f, 0.0f, 0.0f, 1.0f);
 
     PRINTF("There should be a triangle on the screen\n");
     PRINTF("The triangle should change color between red, green and blue\n");
@@ -182,19 +182,19 @@ TEST_F(RenderableSuite, ChangeColorAtRuntime) {
     WINDOW_LOOP("Window display wrong", {
         if (--count == 0) {
             count = 200;
-            triangle.setColor(colors[colorIndex].r, colors[colorIndex].g, colors[colorIndex].b, 1.0f);
+            context.RenderableManager().getRef(triangleId).setColor(colors[colorIndex].r, colors[colorIndex].g, colors[colorIndex].b, 1.0f);
             colorIndex = (colorIndex + 1) % 3;
         }
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, Translate) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle move between lower left and upper right\n");
@@ -204,22 +204,22 @@ TEST_F(RenderableSuite, Translate) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        triangle.translate({delta, delta, 0});
+        context.RenderableManager().getRef(triangleId).translate({delta, delta, 0});
         count--;
         if (count == 0) {
             delta *= -1;
             count = 125;
         }
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, TranslateX) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle move between left and right\n");
@@ -229,22 +229,22 @@ TEST_F(RenderableSuite, TranslateX) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        triangle.translateX(delta);
+        context.RenderableManager().getRef(triangleId).translateX(delta);
         count--;
         if (count == 0) {
             delta *= -1;
             count = 125;
         }
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, TranslateY) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle move between up and down\n");
@@ -254,24 +254,24 @@ TEST_F(RenderableSuite, TranslateY) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        triangle.translateY(delta);
+        context.RenderableManager().getRef(triangleId).translateY(delta);
         count--;
         if (count == 0) {
             delta *= -1;
             count = 125;
         }
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, TranslateZ) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle1(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
-    Renderable triangle2(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
-    triangle2.setColor(1.0f, 0.0f, 0.0f, 1.0f);
+    RenderableId triangle1Id = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangle2Id = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
+    context.RenderableManager().getRef(triangle2Id).setColor(1.0f, 0.0f, 0.0f, 1.0f);
 
     PRINTF("There should be a white triangle and red triangle on the screen by terns\n");
     PRINTF("If success press 's', otherwise press 'f' ");
@@ -280,24 +280,24 @@ TEST_F(RenderableSuite, TranslateZ) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        triangle1.translateZ(delta);
+        context.RenderableManager().getRef(triangle1Id).translateZ(delta);
         count--;
         if (count == 0) {
             delta *= -1;
             count = 125;
         }
 
-        triangle1.update();
-        triangle1.render(context);
-        triangle2.update();
-        triangle2.render(context);
+        context.RenderableManager().getRef(triangle1Id).update();
+        context.RenderableManager().getRef(triangle1Id).render(context);
+        context.RenderableManager().getRef(triangle2Id).update();
+        context.RenderableManager().getRef(triangle2Id).render(context);
     });
 }
 
 TEST_F(RenderableSuite, SetPosition) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle move between lower left and upper right\n");
@@ -307,23 +307,23 @@ TEST_F(RenderableSuite, SetPosition) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 pos = triangle.position();
-        triangle.position({pos.x + delta, pos.y + delta, pos.z});
+        glm::vec3 pos = context.RenderableManager().getRef(triangleId).position();
+        context.RenderableManager().getRef(triangleId).position({pos.x + delta, pos.y + delta, pos.z});
         count--;
         if (count == 0) {
             delta *= -1;
             count = 125;
         }
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, Scale) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle should be scaled vertically and horizontally\n");
@@ -333,23 +333,23 @@ TEST_F(RenderableSuite, Scale) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 scale = triangle.scale();
-        triangle.scale({scale.x + delta, scale.y + delta, scale.z});
+        glm::vec3 scale = context.RenderableManager().getRef(triangleId).scale();
+        context.RenderableManager().getRef(triangleId).scale({scale.x + delta, scale.y + delta, scale.z});
         count--;
         if (count == 0) {
             delta *= -1;
             count = 125;
         }
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, ScaleX) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle should be scaled horizontally\n");
@@ -359,23 +359,23 @@ TEST_F(RenderableSuite, ScaleX) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 scale = triangle.scale();
-        triangle.scaleX(scale.x + delta);
+        glm::vec3 scale = context.RenderableManager().getRef(triangleId).scale();
+        context.RenderableManager().getRef(triangleId).scaleX(scale.x + delta);
         count--;
         if (count == 0) {
             delta *= -1;
             count = 125;
         }
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, ScaleY) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle should be scaled vertically\n");
@@ -385,23 +385,23 @@ TEST_F(RenderableSuite, ScaleY) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 scale = triangle.scale();
-        triangle.scaleY(scale.y + delta);
+        glm::vec3 scale = context.RenderableManager().getRef(triangleId).scale();
+        context.RenderableManager().getRef(triangleId).scaleY(scale.y + delta);
         count--;
         if (count == 0) {
             delta *= -1;
             count = 125;
         }
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, Rotate) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle should be rotate clockwise\n");
@@ -410,17 +410,17 @@ TEST_F(RenderableSuite, Rotate) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        triangle.rotate({0, 0, delta});
+        context.RenderableManager().getRef(triangleId).rotate({0, 0, delta});
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, RotateX) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle should be rotate around x-axis\n");
@@ -429,17 +429,17 @@ TEST_F(RenderableSuite, RotateX) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        triangle.rotateX(delta);
+        context.RenderableManager().getRef(triangleId).rotateX(delta);
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, RotateY) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle should be rotate around y-axis\n");
@@ -448,17 +448,17 @@ TEST_F(RenderableSuite, RotateY) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        triangle.rotateY(delta);
+        context.RenderableManager().getRef(triangleId).rotateY(delta);
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, RotateZ) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle should be rotate around z-axis\n");
@@ -467,17 +467,17 @@ TEST_F(RenderableSuite, RotateZ) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        triangle.rotateZ(delta);
+        context.RenderableManager().getRef(triangleId).rotateZ(delta);
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
 
 TEST_F(RenderableSuite, SetRotation) {
     if (skipHandTest) GTEST_SKIP();
 
-    Renderable triangle(RenderableId(), { .meshId = triangleMeshId, .materialId = materialId });
+    RenderableId triangleId = context.RenderableManager().create({ .meshId = triangleMeshId, .materialId = materialId });
 
     PRINTF("There should be a white triangle on the screen\n");
     PRINTF("The triangle should be rotate clockwise\n");
@@ -486,10 +486,10 @@ TEST_F(RenderableSuite, SetRotation) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 rotation = triangle.rotation();
-        triangle.rotation({rotation.x, rotation.y, rotation.z + delta});
+        glm::vec3 rotation = context.RenderableManager().getRef(triangleId).rotation();
+        context.RenderableManager().getRef(triangleId).rotation({rotation.x, rotation.y, rotation.z + delta});
 
-        triangle.update();
-        triangle.render(context);
+        context.RenderableManager().getRef(triangleId).update();
+        context.RenderableManager().getRef(triangleId).render(context);
     });
 }
