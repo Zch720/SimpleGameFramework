@@ -1,25 +1,34 @@
-# Simple Game Library
+# Simple Game Framework
 
-This is a game library based on GLFW. Is is designed to be simple and easy to manage windows and rendering object.
+This is a game library based on GLFW. It is designed to be simple and easy to manage windows and rendering object.
 
-## Features
+<!-- ## Features
 
 - [x] Manage windows
 - [x] Manage shaders
 - [ ] Provide basic rendering objects: include line, triangle, rectangle, circle, image, text, etc.
-- [ ] Manage audios
-- [ ] Manage user input
+- [x] Manage audios
+- [x] Manage user input -->
+
+## Libraries
+
+This framework is not finished yet. But there are some libraries available:
+
+- `sgf_rendering`: Provides OpenGL-based rendering. Includes components such as `Shader`, `Material`, `Texture2D`, and `Mesh`.
+    - `sgf_rendering_font`: A plugin for `sgf_rendering` that loads `.ttf` files and renders text.
+- `sgf_platform`: Manages windows and user input.
+- `sgf_audio`: Manages audio playing.
 
 ## Usage
 
 ### Require
 
-- C++ 14
+- C++ 17
 - CMake 3.14 or later
 
-#### Require Libraries
+<!-- #### Require Libraries
 
-Ubuntu: `sudo apt install libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev`
+Ubuntu: `sudo apt install libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev` -->
 
 #### OS
 
@@ -29,66 +38,121 @@ Ubuntu: `sudo apt install libx11-dev libxrandr-dev libxinerama-dev libxcursor-de
 
 ### CMake
 
-This library is not finished yet. If you want to use the feature from sub-project `SimpleRendering` library of this project, you can link the library `simple_rendering` to your project.
+To use the sub-libraries in this project, link against the following CMake targets:
 
-```cmake
-add_subdirectory(path_to_simple_game_library)
-
-target_link_libraries(your_project PRIVATE simple_rendering)
-```
+- `sgf_rendering`: `sgf_rendering`
+    - For developing a plugin that requires direct OpenGL access, also link `sgf_rendering_unsafe`.
+- `sgf_rendering_font`: `sgf_rendering_font`
+- `sgf_platform`: `sgf_platform`
+- `sgf_audio`: `sgf_audio`
 
 ## Example
 
-### Simple Rendering
+### Create a window with RGB triangle
 
-- Create a window and render a red triangle
+> This example is based on `GameControlContext` from `sgf_core` and does not reflect the final design of SGF.
 
 ```cpp
-#include <window_manager.h>
-#include <shader_manager.h>
-#include <renderable/shapes/triangle.h>
-#include <glad/gl.h> // This will be removed after adding a event manager
-#include <GLFW/glfw3.h> // This will be removed after adding a event manager
+#include <sgf/control/game_control_context.h>
 
-#define MAIN_WINDOW_NAME    "main window"
-#define MAIN_WINDOW_WIDTH   800
-#define MAIN_WINDOW_HEIGHT  600
-#define DEFAULT_SHADER_NAME "triangle shader"
+std::string vertexShader = R"(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;   // The vertex position data
+    layout (location = 1) in vec3 aColor;  // The vertex color data
+    
+    uniform mat4 projection = mat4(1.0);
+    uniform mat4 view = mat4(1.0);
+    uniform mat4 model = mat4(1.0);
 
-#define VERTEX_SHADER   "#version 330 core\n"                       \
-                        "layout (location = 0) in vec3 aPos;\n"     \
-                        "uniform mat4 model = mat4(1.0);\n"         \
-                        "void main() {\n"                           \
-                        "   gl_Position = model * vec4(aPos, 1.0);\n"  \
-                        "}"
+    out vec3 ourColor; // Output a color to the fragment shader
 
-#define FRAGMENT_SHADER "#version 330 core\n"               \
-                        "uniform vec4 color = vec4(1.0);\n" \
-                        "out vec4 FragColor;\n"             \
-                        "void main() {\n"                   \
-                        "   FragColor = color;\n"              \
-                        "}"
+    void main()
+    {
+        gl_Position = projection * view * model * vec4(aPos, 1.0); // Set the position
+        ourColor = aColor; // Pass the color to the fragment shader
+    }
+)";
+
+std::string fragmentShader = R"(
+    #version 330 core
+    out vec4 FragColor; // The final output color for the pixel
+
+    in vec3 ourColor; // Input color from the vertex shader (interpolated)
+
+    void main()
+    {
+        FragColor = vec4(ourColor, 1.0f); // Set the final color, including alpha (opacity)
+    }
+)";
+
+float vertices[18] {
+        0.0f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // Top (Red)
+    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, // Bottom Left (Green)
+        0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f  // Bottom Right (Blue)
+};
+uint32_t indices[3] {0, 1, 2};
+
 
 int main() {
-    WindowManager::Instance().createWindow(MAIN_WINDOW_NAME, MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT, "Test Window");
-    ShaderManager::Instance().createShader(DEFAULT_SHADER_NAME, VERTEX_SHADER, FRAGMENT_SHADER);
-    ShaderManager::Instance().registerShaderUniformVariable(DEFAULT_SHADER_NAME, "color", "color");
-    ShaderManager::Instance().registerShaderUniformVariable(DEFAULT_SHADER_NAME, "transform", "model");
-    
-    Triangle triangle = Triangle(MAIN_WINDOW_NAME, DEFAULT_SHADER_NAME, point1, point2, point3);
-    triangle.setColor(1.0f, 0.0f, 0.0f, 1.0f);
+    sgf_core::PlatformContext platformContext;
+    platformContext.createWindow({ .width = 800, .height = 800, .title = "Test Window" });
 
-    while (!WindowManager::Instance().isWindowClose(MAIN_WINDOW_NAME)) {
-        WindowManager::Instance().clearWindow(MAIN_WINDOW_NAME);
-        triangle.render();
-        glfwPollEvents(); // This will be replaced by a event manager
-    }
+    sgf_core::RenderContext renderContext;
+    renderContext.initialize();
+    platformContext.setWindowClearBuffer(renderContext.getClearFrameBufferBits());
 
-    ShaderManager::Instance().destroyShaders();
-    WindowManager::Instance().terminate();
+    renderContext.Camera().translateZ(5);
+    renderContext.Camera().projection().setProjectionData({
+        .type = sgf_core::Projection::ORTHOGRAPHIC,
+        .width = 3, .height = 3,
+        .near = 0.1, .far = 1000
+    });
 
-    return 0;
+    sgf_core::GameControlContext gameContext(renderContext, platformContext);
+
+    sgf_core::ShaderId shaderId = renderContext.ShaderManager().create({
+        .vertexShaderSource = vertexShader,
+        .fragmentShaderSource = fragmentShader,
+    });
+    sgf_core::VertexLayout layout;
+    layout.addAttribute({ .index = 0, .size = 3, .type = sgf_core::VertexLayout::FLOAT, .normalized = false, .offset = 0 });
+    layout.addAttribute({ .index = 1, .size = 3, .type = sgf_core::VertexLayout::FLOAT, .normalized = false, .offset = 3 * sizeof(float) });
+    sgf_core::MeshId meshId = renderContext.MeshManager().create({
+        .vertices = vertices,
+        .verticesCount = 3,
+        .indices = indices,
+        .indicesCount = 3,
+        .vertexLayout = layout,
+    });
+    sgf_core::MaterialId materialId = renderContext.MaterialManager().create({
+        .useTexture = false,
+        .shaderId = shaderId,
+    });
+    renderContext.MaterialManager().getRef(materialId).registerUniform(renderContext, "projection", sgf_core::UniformSource::CAMERA_PROJECTION);
+    renderContext.MaterialManager().getRef(materialId).registerUniform(renderContext, "view", sgf_core::UniformSource::CAMERA_VIEW);
+    renderContext.MaterialManager().getRef(materialId).registerUniform(renderContext, "model", sgf_core::UniformSource::TRANSFORM_MATRIX);
+
+    sgf_core::RenderableId renderableId = renderContext.RenderableManager().create({
+        .meshId = meshId,
+        .materialId = materialId,
+    });
+
+    gameContext.GameLoop().addRenderFunction([&renderContext, &renderableId](const sgf_core::RenderContext & context) {
+        renderContext.RenderableManager().getRef(renderableId).render(context);
+    });
+
+    gameContext.GameLoop().addUpdateFunction([&renderContext]() {
+        renderContext.Camera().update();
+    });
+    gameContext.GameLoop().addUpdateFunction([&platformContext, &gameContext]() {
+        if (platformContext.Runtime().Input().Keyboard().isKeyDown(sgf_core::Key::ESCAPE)) {
+            gameContext.GameLoop().stop();
+        }
+    });
+
+    gameContext.GameLoop().run();
+
+    renderContext.destroyAllResources();
+    platformContext.terminate();
 }
 ```
-
-For more example code, you can see the [`test`](https://github.com/Zch720/SimpleGameLibrary/tree/main/simple_rendering/test) folder in SimpleRendering.
