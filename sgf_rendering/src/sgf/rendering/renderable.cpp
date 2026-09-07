@@ -1,7 +1,7 @@
 #include "../../../include/sgf/rendering/renderable.h"
 #include <glad/gl.h>
-#include <glm/gtc/matrix_transform.hpp>
 #include "../../../include/sgf/rendering/render_context.h"
+#include "sgf/rendering/transform.h"
 
 namespace sgf_core {
     const std::string RenderableTag::TypeName = "Renderable";
@@ -10,12 +10,21 @@ namespace sgf_core {
     Renderable::Renderable(const Id & id, const Construct & constructParameter):
             meshId(constructParameter.meshId),
             materialId(constructParameter.materialId),
-            color(1.0f),
-            positionValue(0.0f),
-            scaleValue(1.0f),
-            rotationValue(0.0f) {
+            color(1.0f)
+    {
         this->id = id;
-        updateTransformationMatrix();
+    }
+
+    void Renderable::setMeshId(const MeshId & meshId) {
+        this->meshId = meshId;
+    }
+
+    void Renderable::setMaterialId(const MaterialId & materialId) {
+        this->materialId = materialId;
+    }
+
+    void Renderable::setTransform(const Transform & transform) {
+        this->transform = transform;
     }
 
     UniformProvider & Renderable::getUniformProvider() {
@@ -30,18 +39,20 @@ namespace sgf_core {
         return color;
     }
 
-    glm::mat4 Renderable::getTransformationMatrix() const {
-        return transformationMatrix;
+    Transform & Renderable::getTransform() {
+        return transform;
+    }
+
+    const Transform & Renderable::getTransform() const {
+        return transform;
     }
 
     void Renderable::update() {
-        if (transformDirty) {
-            updateTransformationMatrix();
-            transformDirty = false;
-        }
+        transform.updateTransformationMatrix();
     }
 
     void Renderable::render(const RenderContext & context) const {
+        if (!context.MaterialManager().isExist(materialId)) return;
         if (!context.MeshManager().isExist(meshId)) return;
 
         Material & material = context.MaterialManager().getRef(materialId);
@@ -56,97 +67,5 @@ namespace sgf_core {
 
     void Renderable::setColor(float r, float g, float b, float a) {
         color = glm::vec4(r, g, b, a);
-    }
-
-    glm::vec3 Renderable::position() const {
-        return positionValue;
-    }
-
-    void Renderable::position(const glm::vec3 & position) {
-        positionValue = position;
-        transformDirty = true;
-    }
-
-    void Renderable::translate(const glm::vec3 & translate) {
-        positionValue += translate;
-        transformDirty = true;
-    }
-
-    void Renderable::translateX(const float delta) {
-        positionValue.x += delta;
-        transformDirty = true;
-    }
-
-    void Renderable::translateY(const float delta) {
-        positionValue.y += delta;
-        transformDirty = true;
-    }
-
-    void Renderable::translateZ(const float delta) {
-        positionValue.z += delta;
-        transformDirty = true;
-    }
-
-    glm::vec3 Renderable::scale() const {
-        return scaleValue;
-    }
-
-    void Renderable::scale(const glm::vec3 & scale) {
-        scaleValue = scale;
-        transformDirty = true;
-    }
-
-    void Renderable::scaleX(const float scale) {
-        scaleValue.x = scale;
-        transformDirty = true;
-    }
-
-    void Renderable::scaleY(const float scale) {
-        scaleValue.y = scale;
-        transformDirty = true;
-    }
-
-    void Renderable::scaleZ(const float scale) {
-        scaleValue.z = scale;
-        transformDirty = true;
-    }
-
-    glm::vec3 Renderable::rotation() const {
-        return rotationValue;
-    }
-
-    void Renderable::rotation(const glm::vec3 & rotation) {
-        rotationValue = rotation;
-        transformDirty = true;
-    }
-
-    void Renderable::rotate(const glm::vec3 & rotate) {
-        rotationValue += rotate;
-        transformDirty = true;
-    }
-
-    void Renderable::rotateX(const float rotate) {
-        rotationValue.x += rotate;
-        transformDirty = true;
-    }
-
-    void Renderable::rotateY(const float rotate) {
-        rotationValue.y += rotate;
-        transformDirty = true;
-    }
-
-    void Renderable::rotateZ(const float rotate) {
-        rotationValue.z += rotate;
-        transformDirty = true;
-    }
-
-    void Renderable::updateTransformationMatrix() {
-        glm::mat4 mat(1.0f);
-        mat = glm::rotate(mat, glm::radians(rotationValue.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        mat = glm::rotate(mat, glm::radians(rotationValue.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        mat = glm::rotate(mat, glm::radians(rotationValue.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        mat = glm::translate(mat, positionValue);
-        mat = glm::scale(mat, scaleValue);
-        transformationMatrix = mat;
     }
 }

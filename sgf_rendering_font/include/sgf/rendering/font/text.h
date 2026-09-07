@@ -5,7 +5,7 @@
 #include <glm/matrix.hpp>
 #include <sgf/rendering/material_id.h>
 #include <sgf/rendering/mesh_id.h>
-#include <sgf/rendering/renderable_id.h>
+#include <sgf/rendering/transform.h>
 #include "./font_id.h"
 
 namespace sgf_font {
@@ -22,11 +22,9 @@ namespace sgf_font {
         int width;
         int height;
 
-        bool positionDirty;
-        glm::vec3 positionValue;
-
         sgf_core::MeshId meshId;
-        sgf_core::RenderableId renderableId;
+
+        sgf_core::Transform transform;
 
         void updateMesh(FontRenderContext & context);
 
@@ -39,19 +37,15 @@ namespace sgf_font {
         int getSize() const;
         const std::u32string & getText() const;
         FontId getFont() const;
+        sgf_core::MeshId getMesh() const;
+
+        sgf_core::Transform & getTransform();
+        const sgf_core::Transform & getTransform() const;
 
         void setSize(int size);
         void setText(const std::u32string & text);
         void setFont(const FontId & fontId);
 
         void update(FontRenderContext & context);
-        void render(const FontRenderContext & context) const;
-
-        glm::vec3 position() const;
-        void position(const glm::vec3 & position);
-        void translate(const glm::vec3 & translation);
-        void translateX(const float translation);
-        void translateY(const float translation);
-        void translateZ(const float translation);
     };
 }

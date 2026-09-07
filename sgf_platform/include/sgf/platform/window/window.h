@@ -23,6 +23,9 @@ namespace sgf_core {
         Window(const Id & id, const Construct & constructParameter);
         ~Window();
 
+        int getWidth() const;
+        int getHeight() const;
+
         void setClearColor(float r, float g, float b, float a);
 
         bool isClose() const;

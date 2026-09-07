@@ -8,6 +8,7 @@
 #include "./font.h"
 #include "./font_id.h"
 #include "./font_loader.h"
+#include "./text_renderer.h"
 
 namespace sgf_core {
     class RenderContext;
@@ -17,10 +18,11 @@ namespace sgf_font {
     class FontRenderContext {
     private:
         sgf_core::RenderContext & context;
-        sgf_core::ShaderId shaderId;
-        sgf_core::MaterialId materialId;
+        sgf_core::ShaderId defaultShaderId;
+        sgf_core::MaterialId defaultMaterialId;
 
         FontLoader fontLoader;
+        sgf_font::TextRenderer textRenderer;
 
         sgf_core::IdGenerator<FontId> fontIdGenerator;
         std::unordered_map<FontId, Font> fonts;
@@ -31,14 +33,16 @@ namespace sgf_font {
         FontRenderContext(sgf_core::RenderContext & context);
         ~FontRenderContext();
 
+        sgf_font::TextRenderer & TextRenderer();
+
         sgf_core::RenderContext & getContext();
         const sgf_core::RenderContext & getContext() const;
 
         Font & getFont(const FontId & fontId);
         const Font & getFont(const FontId & fontId) const;
 
-        sgf_core::ShaderId getShaderId() const;
-        sgf_core::MaterialId getMaterialId() const;
+        sgf_core::ShaderId getDefaultShaderId() const;
+        sgf_core::MaterialId getDefaultMaterialId() const;
 
         void setMaterial(const sgf_core::MaterialId & materialId);
 

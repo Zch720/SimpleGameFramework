@@ -54,13 +54,14 @@ namespace sgf_core {
         }
     }
 
+    // TODO: Maybe remove uniform apply from material
     void Material::applyPerObject(const RenderContext & context, const Renderable & renderable) const {
         Shader & shader = context.ShaderManager().getRef(shaderId);
 
         for (const auto & [name, uniformId]: uniformIds) {
             UniformSource sourceType = uniformSourceTypes.at(uniformId);
             if (sourceType == UniformSource::TRANSFORM_MATRIX) {
-                shader.setMat4UniformVariable(name, renderable.getTransformationMatrix());
+                shader.setMat4UniformVariable(name, renderable.getTransform().getTransformationMatrix());
             } else if (sourceType == UniformSource::RENDERABLE_COLOR) {
                 shader.setVec4UniformVariable(name, renderable.getColor());
             } else if (sourceType == UniformSource::CAMERA_VIEW) {

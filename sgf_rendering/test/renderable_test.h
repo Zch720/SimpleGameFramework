@@ -204,7 +204,7 @@ TEST_F(RenderableSuite, Translate) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        context.RenderableManager().getRef(triangleId).translate({delta, delta, 0});
+        context.RenderableManager().getRef(triangleId).getTransform().translate({delta, delta, 0});
         count--;
         if (count == 0) {
             delta *= -1;
@@ -229,7 +229,7 @@ TEST_F(RenderableSuite, TranslateX) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        context.RenderableManager().getRef(triangleId).translateX(delta);
+        context.RenderableManager().getRef(triangleId).getTransform().translateX(delta);
         count--;
         if (count == 0) {
             delta *= -1;
@@ -254,7 +254,7 @@ TEST_F(RenderableSuite, TranslateY) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        context.RenderableManager().getRef(triangleId).translateY(delta);
+        context.RenderableManager().getRef(triangleId).getTransform().translateY(delta);
         count--;
         if (count == 0) {
             delta *= -1;
@@ -280,7 +280,7 @@ TEST_F(RenderableSuite, TranslateZ) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        context.RenderableManager().getRef(triangle1Id).translateZ(delta);
+        context.RenderableManager().getRef(triangle1Id).getTransform().translateZ(delta);
         count--;
         if (count == 0) {
             delta *= -1;
@@ -307,8 +307,8 @@ TEST_F(RenderableSuite, SetPosition) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 pos = context.RenderableManager().getRef(triangleId).position();
-        context.RenderableManager().getRef(triangleId).position({pos.x + delta, pos.y + delta, pos.z});
+        glm::vec3 pos = context.RenderableManager().getRef(triangleId).getTransform().getPosition();
+        context.RenderableManager().getRef(triangleId).getTransform().setPosition({pos.x + delta, pos.y + delta, pos.z});
         count--;
         if (count == 0) {
             delta *= -1;
@@ -333,8 +333,8 @@ TEST_F(RenderableSuite, Scale) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 scale = context.RenderableManager().getRef(triangleId).scale();
-        context.RenderableManager().getRef(triangleId).scale({scale.x + delta, scale.y + delta, scale.z});
+        glm::vec3 scale = context.RenderableManager().getRef(triangleId).getTransform().getScale();
+        context.RenderableManager().getRef(triangleId).getTransform().setScale({scale.x + delta, scale.y + delta, scale.z});
         count--;
         if (count == 0) {
             delta *= -1;
@@ -359,8 +359,8 @@ TEST_F(RenderableSuite, ScaleX) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 scale = context.RenderableManager().getRef(triangleId).scale();
-        context.RenderableManager().getRef(triangleId).scaleX(scale.x + delta);
+        glm::vec3 scale = context.RenderableManager().getRef(triangleId).getTransform().getScale();
+        context.RenderableManager().getRef(triangleId).getTransform().setScaleX(scale.x + delta);
         count--;
         if (count == 0) {
             delta *= -1;
@@ -385,8 +385,8 @@ TEST_F(RenderableSuite, ScaleY) {
     int count = 75;
     double delta = 0.004;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 scale = context.RenderableManager().getRef(triangleId).scale();
-        context.RenderableManager().getRef(triangleId).scaleY(scale.y + delta);
+        glm::vec3 scale = context.RenderableManager().getRef(triangleId).getTransform().getScale();
+        context.RenderableManager().getRef(triangleId).getTransform().setScaleY(scale.y + delta);
         count--;
         if (count == 0) {
             delta *= -1;
@@ -410,7 +410,7 @@ TEST_F(RenderableSuite, Rotate) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        context.RenderableManager().getRef(triangleId).rotate({0, 0, delta});
+        context.RenderableManager().getRef(triangleId).getTransform().rotate({0, 0, delta});
 
         context.RenderableManager().getRef(triangleId).update();
         context.RenderableManager().getRef(triangleId).render(context);
@@ -429,7 +429,7 @@ TEST_F(RenderableSuite, RotateX) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        context.RenderableManager().getRef(triangleId).rotateX(delta);
+        context.RenderableManager().getRef(triangleId).getTransform().rotateX(delta);
 
         context.RenderableManager().getRef(triangleId).update();
         context.RenderableManager().getRef(triangleId).render(context);
@@ -448,7 +448,7 @@ TEST_F(RenderableSuite, RotateY) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        context.RenderableManager().getRef(triangleId).rotateY(delta);
+        context.RenderableManager().getRef(triangleId).getTransform().rotateY(delta);
 
         context.RenderableManager().getRef(triangleId).update();
         context.RenderableManager().getRef(triangleId).render(context);
@@ -467,7 +467,7 @@ TEST_F(RenderableSuite, RotateZ) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        context.RenderableManager().getRef(triangleId).rotateZ(delta);
+        context.RenderableManager().getRef(triangleId).getTransform().rotateZ(delta);
 
         context.RenderableManager().getRef(triangleId).update();
         context.RenderableManager().getRef(triangleId).render(context);
@@ -486,8 +486,8 @@ TEST_F(RenderableSuite, SetRotation) {
 
     double delta = -0.5;
     WINDOW_LOOP("Window display wrong", {
-        glm::vec3 rotation = context.RenderableManager().getRef(triangleId).rotation();
-        context.RenderableManager().getRef(triangleId).rotation({rotation.x, rotation.y, rotation.z + delta});
+        glm::vec3 rotation = context.RenderableManager().getRef(triangleId).getTransform().getRotation();
+        context.RenderableManager().getRef(triangleId).getTransform().setRotation({rotation.x, rotation.y, rotation.z + delta});
 
         context.RenderableManager().getRef(triangleId).update();
         context.RenderableManager().getRef(triangleId).render(context);

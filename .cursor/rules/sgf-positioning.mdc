@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+
+- SGF（Simple Game Framefowk）目標是一個使用者友善的遊戲框架，可以用簡單的方式以純程式碼的方式建立遊戲，使用者只需要專注在遊戲邏輯就好，不需要自行管理物件
+- sgf_rendering 是 SGF Core 的一部份，使用者不會直接接觸到，是 SGF 內部使用的 library，目標是作為 OpenGL 與 SGF 之間的介面，讓 SGF 可以專注在框架的邏輯，不用處裡渲染細節
+- sgf_platform 是 SGF Core 的一部份，使用者不會直接接觸到，是 SGF 內部使用的 library，目標是作為 GLFW 與 SGF 之間的介面，使用 GLFW 提供 OpenGL context，讓 SGF 可以不用處理不同平台間的視窗管理問題

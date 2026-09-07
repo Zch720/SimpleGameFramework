@@ -74,6 +74,18 @@ namespace sgf_core {
         glfwDestroyWindow(impl->window);
     }
 
+    int Window::getWidth() const {
+        int width, height;
+        glfwGetWindowSize(impl->window, &width, &height);
+        return width;
+    }
+
+    int Window::getHeight() const {
+        int width, height;
+        glfwGetWindowSize(impl->window, &width, &height);
+        return height;
+    }
+
     void Window::setClearColor(float r, float g, float b, float a) {
         clearColor.r = r;
         clearColor.g = g;

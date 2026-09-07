@@ -1,4 +1,5 @@
 #include "../../../../include/sgf/rendering/font/font_render_context.h"
+#include "sgf/rendering/font/text_renderer.h"
 #include <sgf/rendering/render_context.h>
 #include <sgf/utils/exceptions/resource_not_found.h>
 #include <sgf/utils/file/fileio.h>
@@ -8,6 +9,7 @@ namespace sgf_font {
     FontRenderContext::FontRenderContext(sgf_core::RenderContext & context):
         context(context),
         fontLoader(*this),
+        textRenderer(*this),
         dpi(96)
     {
         context.unsafeExecute([](const auto &) {
@@ -15,26 +17,30 @@ namespace sgf_font {
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }); // TODO: move to sgf_rendering for pre object
 
-        shaderId = context.ShaderManager().create({
+        defaultShaderId = context.ShaderManager().create({
             .vertexShaderSource = sgf_core::FileIO::read(RESOURCES_DIR"/text_vertex_shader.glsl"),
             .fragmentShaderSource = sgf_core::FileIO::read(RESOURCES_DIR"/text_fragment_shader.glsl")
         });
-        materialId = context.MaterialManager().create({
+        defaultMaterialId = context.MaterialManager().create({
             .useTexture = true,
-            .shaderId = shaderId,
+            .shaderId = defaultShaderId,
             .textureId = sgf_core::Texture2DId()
         });
-        context.MaterialManager().getRef(materialId)
+        context.MaterialManager().getRef(defaultMaterialId)
             .registerUniform(context, "projection", sgf_core::UniformSource::CAMERA_PROJECTION);
-        context.MaterialManager().getRef(materialId)
+        context.MaterialManager().getRef(defaultMaterialId)
             .registerUniform(context, "view", sgf_core::UniformSource::CAMERA_VIEW);
-        context.MaterialManager().getRef(materialId)
+        context.MaterialManager().getRef(defaultMaterialId)
             .registerUniform(context, "transform", sgf_core::UniformSource::TRANSFORM_MATRIX);
-        context.MaterialManager().getRef(materialId)
+        context.MaterialManager().getRef(defaultMaterialId)
             .registerUniform(context, "textColor", sgf_core::UniformSource::RENDERABLE_COLOR);
     }
 
     FontRenderContext::~FontRenderContext() {
+    }
+
+    sgf_font::TextRenderer & FontRenderContext::TextRenderer() {
+        return textRenderer;
     }
 
     sgf_core::RenderContext & FontRenderContext::getContext() {
@@ -61,16 +67,16 @@ namespace sgf_font {
         return fonts.at(fontId);
     }
 
-    sgf_core::ShaderId FontRenderContext::getShaderId() const {
-        return shaderId;
+    sgf_core::ShaderId FontRenderContext::getDefaultShaderId() const {
+        return defaultShaderId;
     }
 
-    sgf_core::MaterialId FontRenderContext::getMaterialId() const {
-        return materialId;
+    sgf_core::MaterialId FontRenderContext::getDefaultMaterialId() const {
+        return defaultMaterialId;
     }
 
     void FontRenderContext::setMaterial(const sgf_core::MaterialId & materialId) {
-        this->materialId = materialId;
+        this->defaultMaterialId = materialId;
     }
 
     uint32_t FontRenderContext::getDpi() const {

@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <sgf/control/game_control_context.h>
 #include <sgf/platform/platform_context.h>
 #include <sgf/rendering/render_context.h>
 #include <sgf/rendering/renderable.h>
@@ -22,8 +21,6 @@ TEST(TestSuite, Test) {
     renderContext.initialize();
     platformContext.setWindowClearBuffer(renderContext.getClearFrameBufferBits());
 
-    sgf_core::GameControlContext controlContext(renderContext, platformContext);
-
     renderContext.Camera().translateZ(5);
     renderContext.Camera().projection().setProjectionData({
         .type = sgf_core::Projection::Type::ORTHOGRAPHIC,
@@ -36,44 +33,36 @@ TEST(TestSuite, Test) {
     fontRenderContext.setDpi(platformContext.getPrimaryMonitorDpi());
 
     std::u32string message = U"abcdefghijkl";
-    float textSize = 20;
 
     sgf_font::FontId fontId = fontRenderContext.addFont(TEST_RESOURCES_DIR"/jf-openhuninn-2.1.ttf");
 
     sgf_font::Text text(fontRenderContext, fontId, 32, U"");
-    text.position({ -270, 0, 0 });
+    text.getTransform().setPosition({ -270, 0, 0 });
     text.update(fontRenderContext);
 
-    time_t lastT, t, beginT;
+    time_t lastT, t;
     time(&lastT);
-    beginT = lastT;
 
-    controlContext.GameLoop().addUpdateFunction([&platformContext, &controlContext]() {
+    while (!platformContext.Window().isClose()) {
+        platformContext.Runtime().onFrameBegin();
+
         if (platformContext.Runtime().Input().Keyboard().isKeyDown(sgf_core::Key::ESCAPE)) {
-            controlContext.GameLoop().stop();
+            platformContext.Window().close();
         }
-    });
 
-    controlContext.GameLoop().addUpdateFunction([&t, &lastT, &beginT, &text, &textSize, &message, &fontRenderContext, &controlContext]() {
         time(&t);
         text.setText(message.substr(0, t - lastT + 1));
-        if ((t - beginT) % 9 > 4) {
-            textSize -= 4 * controlContext.GameLoop().Time().getDeltaTime();
-            text.setSize(textSize);
-        } else {
-            textSize += 4 * controlContext.GameLoop().Time().getDeltaTime();
-            text.setSize(textSize);
+        if (t - lastT >= 10) {
+            lastT = t;
         }
 
         text.update(fontRenderContext);
         fontRenderContext.updateFontsAtlasTexture();
-    });
 
-    controlContext.GameLoop().addRenderFunction([&text, &fontRenderContext](const auto &) {
-        text.render(fontRenderContext);
-    });
+        fontRenderContext.TextRenderer().render(text, fontRenderContext.getDefaultMaterialId());
 
-    controlContext.GameLoop().run();
+        platformContext.Runtime().onFrameEnd();
+    }
 
     renderContext.destroyAllResources();
     platformContext.terminate();

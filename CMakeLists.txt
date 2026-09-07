@@ -5,94 +5,23 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(SGF_TESTS "Build SGF tests" OFF)
-
-include(FetchContent)
-
-if (SGF_TESTS)
-    # get googletest package
-    if(CMAKE_VERSION VERSION_LESS 3.24)
-        FetchContent_Declare(
-            googletest
-            URL https://github.com/google/googletest/archive/f8d7d77c06936315286eb55f8de22cd23c188571.zip
-        )
-    else()
-        FetchContent_Declare(
-            googletest
-            URL https://github.com/google/googletest/archive/f8d7d77c06936315286eb55f8de22cd23c188571.zip
-            DOWNLOAD_EXTRACT_TIMESTAMP 1
-        )
-    endif()
-
-    if(NOT UNIX)
-        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    endif()
-    set(BUILD_GMOCK OFF)
-    FetchContent_MakeAvailable(googletest)
-
-    enable_testing()
-endif()
-
-# get sgf_rendering, sgf_platform
+# get sgf
 add_subdirectory(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sgf_rendering
-    ${CMAKE_BINARY_DIR}/bin/sgf_rendering
-    EXCLUDE_FROM_ALL
-)
-add_subdirectory(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sgf_platform
-    ${CMAKE_BINARY_DIR}/bin/sgf_platform
-    EXCLUDE_FROM_ALL
-)
-add_subdirectory(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sgf_audio
-    ${CMAKE_BINARY_DIR}/bin/sgf_audio
-    EXCLUDE_FROM_ALL
-)
-add_subdirectory(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sgf_control
-    ${CMAKE_BINARY_DIR}/bin/sgf_control
-    EXCLUDE_FROM_ALL
-)
-add_subdirectory(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sgf_rendering_font
-    ${CMAKE_BINARY_DIR}/bin/sgf_rendering_font
+    ${CMAKE_CURRENT_SOURCE_DIR}/sgf
+    ${CMAKE_BINARY_DIR}/bin/sgf
     EXCLUDE_FROM_ALL
 )
 
-if (SGF_TESTS)
-    # create unit test executable
-    add_executable(
-        simple_game_framework_test
-        test/ut_all.cpp
-    )
-    set_target_properties(simple_game_framework_test PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin
-        OUTPUT_NAME "ut_all"
-    )
-    target_compile_options(simple_game_framework_test
-        PRIVATE
-            $<$<CXX_COMPILER_ID:MSVC>:/Wall>
-            $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wfatal-errors>
-    )
-    target_link_libraries(simple_game_framework_test
-        GTest::gtest_main
-        sgf_rendering
-        sgf_platform
-        sgf_audio
-        sgf_control
-        sgf_rendering_font
-    )
-    target_compile_definitions(simple_game_framework_test
-        PRIVATE
-            SGF_LOG
-            SGF_DEBUG_LOG
-            PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
-            RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources"
-            TEST_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/resources"
-    )
+# file(GLOB_RECURSE sgf_sources src/*.cpp)
 
-    # googletest
-    include(GoogleTest)
-    gtest_discover_tests(simple_game_framework_test)
-endif()
+# add_library(game ${sgf_sources})
+# target_include_directories(game
+#     PUBLIC
+#         ${CMAKE_CURRENT_SOURCE_DIR}/include
+#     PRIVATE
+#         ${CMAKE_CURRENT_SOURCE_DIR}/internal_include
+# )
+# target_link_libraries(game
+#     PUBLIC
+#         sgf
+# )

@@ -3,7 +3,7 @@
 #include <chrono>
 
 namespace sgf_core {
-    class GameLoop;
+    class GameRuntime;
 
     class GameTime {
     private:
@@ -19,7 +19,7 @@ namespace sgf_core {
         TimeStamp currentTime() const;
 
     private:
-        friend GameLoop;
+        friend GameRuntime;
 
         GameTime(uint32_t fps, double allowFpsPacingLag);
 

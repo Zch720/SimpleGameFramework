@@ -7,9 +7,7 @@ namespace sgf_font {
         textDirty(false),
         size(size),
         text(text),
-        fontId(fontId),
-        positionDirty(false),
-        positionValue(0)
+        fontId(fontId)
     {
         sgf_core::VertexLayout layout;
         layout.addAttribute({ .index = 0, .size = 2, .type = sgf_core::VertexLayout::VertexType::FLOAT, .normalized = false, .offset = 0 });
@@ -22,10 +20,6 @@ namespace sgf_font {
             .indices = nullptr,
             .indicesCount = 0,
             .vertexLayout = layout
-        });
-        renderableId = context.getContext().RenderableManager().create({
-            .meshId = meshId,
-            .materialId = context.getMaterialId()
         });
 
         updateMesh(context);
@@ -51,6 +45,18 @@ namespace sgf_font {
         return fontId;
     }
 
+    sgf_core::MeshId Text::getMesh() const {
+        return meshId;
+    }
+
+    sgf_core::Transform & Text::getTransform() {
+        return transform;
+    }
+
+    const sgf_core::Transform & Text::getTransform() const {
+        return transform;
+    }
+
     void Text::setSize(int size) {
         this->size = size;
         textDirty = true;
@@ -67,55 +73,12 @@ namespace sgf_font {
     }
 
     void Text::update(FontRenderContext & context) {
-        sgf_core::Renderable & renderable = context.getContext().RenderableManager().getRef(renderableId);
-        if (positionDirty) {
-            renderable.position(positionValue);
-            positionDirty = false;
-        }
-        renderable.update();
+        transform.updateTransformationMatrix();
 
         if (textDirty) {
             updateMesh(context);
             textDirty = false;
         }
-    }
-
-    void Text::render(const FontRenderContext & context) const {
-        context.getContext().MaterialManager()
-            .getRef(context.getMaterialId())
-            .setTextureId(context.getFont(fontId).getTextureId(size));
-        context.getContext().RenderableManager()
-            .getRef(renderableId)
-            .render(context.getContext());
-    }
-
-    glm::vec3 Text::position() const {
-        return positionValue;
-    }
-
-    void Text::position(const glm::vec3 & position) {
-        positionValue = position;
-        positionDirty = true;
-    }
-
-    void Text::translate(const glm::vec3 & translation) {
-        positionValue += translation;
-        positionDirty = true;
-    }
-
-    void Text::translateX(const float translation) {
-        positionValue.x += translation;
-        positionDirty = true;
-    }
-
-    void Text::translateY(const float translation) {
-        positionValue.y += translation;
-        positionDirty = true;
-    }
-
-    void Text::translateZ(const float translation) {
-        positionValue.z += translation;
-        positionDirty = true;
     }
 
     void Text::updateMesh(FontRenderContext & context) {

@@ -6,7 +6,10 @@ uniform sampler2D tex;
 uniform vec4 textColor = vec4(1.0f);
 
 void main()
-{    
+{
+    if (texture(tex, TexCoords).r < 0.3) {
+        discard;
+    }
     vec4 sampled = vec4(1.0, 1.0, 1.0, texture(tex, TexCoords).r);
     color = textColor * sampled;
 }
