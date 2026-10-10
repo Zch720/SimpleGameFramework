@@ -1,0 +1,8 @@
+{
+    "cmake.configureArgs": [
+        "-DSGF_ALLOW_TESTS=ON"
+    ],
+    "cSpell.words": [
+        "glfw"
+    ]
+}

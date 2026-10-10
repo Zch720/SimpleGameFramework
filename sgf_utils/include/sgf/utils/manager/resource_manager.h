@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
@@ -85,6 +86,22 @@ namespace sgf::utils {
                 m_oIdGenerator.removeId(rResource.first);
             }
             m_mapResources.clear();
+        }
+
+        template <typename F>
+        requires std::invocable<F&, const T_RID&, T&>
+        void forEach(F&& rFunc) {
+            for (auto& [rId, rResource]: m_mapResources) {
+                std::invoke(rFunc, rId, *rResource);
+            }
+        }
+
+        template <typename F>
+        requires std::invocable<F&, const T_RID&, const T&>
+        void forEach(F&& rFunc) const {
+            for (auto& [rId, rResource]: m_mapResources) {
+                std::invoke(rFunc, rId, *rResource);
+            }
         }
     };
 }

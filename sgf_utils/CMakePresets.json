@@ -1,5 +1,5 @@
 {
-    "version": 3,
+    "version": 6,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 24
@@ -35,6 +35,34 @@
             "name": "ninja",
             "configurePreset": "ninja",
             "jobs": 8
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "defaultWorkflow",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
+                },
+                {
+                    "type": "build",
+                    "name": "default"
+                }
+            ]
+        },
+        {
+            "name": "ninjaWorkflow",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "ninja"
+                },
+                {
+                    "type": "build",
+                    "name": "ninja"
+                }
+            ]
         }
     ]
 }

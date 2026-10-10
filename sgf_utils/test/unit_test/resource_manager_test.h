@@ -48,11 +48,10 @@ TEST_F(ManagerSuite, AddObject) {
     sgf::utils::ResourceManager<Foo, FooId> oManager;
 
     FooId oId = oManager.create(Foo::Construct { .nNum = 10 });
-    Foo& rObj = oManager.getRef(oId);
 
 
     ASSERT_TRUE(oManager.isExist(oId));
-    ASSERT_EQ(10, rObj.getNum());
+    ASSERT_EQ(10, oManager.getRef(oId).getNum());
 }
 
 TEST_F(ManagerSuite, AddTwoObject) {
@@ -60,13 +59,11 @@ TEST_F(ManagerSuite, AddTwoObject) {
 
     FooId oId1 = oManager.create(Foo::Construct { .nNum = 10 });
     FooId oId2 = oManager.create(Foo::Construct { .nNum = 20 });
-    Foo& rObj1 = oManager.getRef(oId1);
-    Foo& rObj2 = oManager.getRef(oId2);
 
     ASSERT_TRUE(oManager.isExist(oId1));
-    ASSERT_EQ(10, rObj1.getNum());
+    ASSERT_EQ(10, oManager.getRef(oId1).getNum());
     ASSERT_TRUE(oManager.isExist(oId2));
-    ASSERT_EQ(20, rObj2.getNum());
+    ASSERT_EQ(20, oManager.getRef(oId2).getNum());
 }
 
 TEST_F(ManagerSuite, RemoveObject) {
@@ -133,4 +130,23 @@ TEST_F(ManagerSuite, ClearMultipleObject) {
     ASSERT_FALSE(oManager.isExist(oId1));
     ASSERT_FALSE(oManager.isExist(oId2));
     ASSERT_FALSE(oManager.isExist(oId3));
+}
+
+TEST_F(ManagerSuite, ForEach) {
+    sgf::utils::ResourceManager<Foo, FooId> oManager;
+
+    FooId oId1 = oManager.create(Foo::Construct { .nNum = 10 });
+    FooId oId2 = oManager.create(Foo::Construct { .nNum = 20 });
+    FooId oId3 = oManager.create(Foo::Construct { .nNum = 30 });
+
+    oManager.forEach([](const FooId& rId, Foo& rFoo) {
+        rFoo.setNum(rFoo.getNum() + 10);
+    });
+
+    ASSERT_TRUE(oManager.isExist(oId1));
+    ASSERT_EQ(20, oManager.getRef(oId1).getNum());
+    ASSERT_TRUE(oManager.isExist(oId2));
+    ASSERT_EQ(30, oManager.getRef(oId2).getNum());
+    ASSERT_TRUE(oManager.isExist(oId3));
+    ASSERT_EQ(40, oManager.getRef(oId3).getNum());
 }

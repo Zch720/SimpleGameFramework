@@ -1,6 +1,7 @@
 # third party
 include(${CMAKE_CURRENT_LIST_DIR}/dependencies/fmt.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/dependencies/glad.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/dependencies/glfw.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/dependencies/glm.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/dependencies/gtest.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/dependencies/spdlog.cmake)
