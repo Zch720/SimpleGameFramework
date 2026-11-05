@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "./resource_manager_test.h"
+#include "./resource_pair_test.h"
 
 int main(int argc, char *argv[]) {
     testing::InitGoogleTest(&argc, argv);
